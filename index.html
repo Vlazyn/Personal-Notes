@@ -121,12 +121,14 @@
         }
         
         .category-column {
-            background-color: rgba(197, 160, 138, 0.55); 
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
             border-radius: 15px;
             padding: 20px;
             box-sizing: border-box;
             min-height: 200px;
+            gap: 15px;
             
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -209,7 +211,7 @@
         
         .sticky-note {
             padding: 15px;
-            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
             font-size: 14px;
             color: #2F3E32;
             box-sizing: border-box;
@@ -222,9 +224,16 @@
             word-break: break-word;
             overflow-wrap: break-word;
             white-space: pre-wrap;
-            border-radius: 6px;
-            transition: background-color 0.3s;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.65) !important; 
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
+        
+        .sticky-note:hover {
+        transform: scale(1.03) rotate(0deg);
+        box-shadow: 8px 12px 20px rgba(0, 0, 0, 0.35);
         
         .note-header-row {
             display: flex;
