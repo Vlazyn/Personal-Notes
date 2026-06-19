@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Notes</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6E5B4A">
+
+    <style>
+        body {
+            background-image: url(bg.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: Verdana, Geneva, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .top-navbar {
+            background-color: #6E5B4A;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            position: relative;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .hamburger-btn:hover {
+            opacity: 0.8;
+        }
+
+        .control-deck {
+            background-color: #E7E2D9;
+            border-bottom: 4px solid #342525;
+            padding: 15px 20px;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 999;
+        }
+
+        .control-deck.open {
+            display: flex;
+        }
+
+        .board-selector-menu {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 400px;
+            padding: 0 15px;
+        }
+        
+        .menu-btn {
+            flex: 1;
+            min-width: 75px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #fff;
+            background-color: #6E5B4A;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .menu-btn.active {
+            color: white;
+            border-color: #BA8E23;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .board-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 15px 30px 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        
+        .board-column {
+            width: 100%;
+            display: none;
+        }
+
+        .board-column.active-view {
+            display: block;
+        }
+        
+        .category-column {
+            background-color: rgba(197, 160, 138, 0.55); 
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 200px;
+            
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .column-header {
+            text-align: center;
+            color: #4A5D4E;
+            padding: 10px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            background-color: #C8D6AF; 
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .input-box {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 8px;
+            border: 1px dashed #4A5D4E;
+            border-radius: 4px;
+            resize: none;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #FAF9F6;
+        }
+        
+        button.pin-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            color: #4A5D4E;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: #C8D6AF; 
+            transition: background-color 0.3s, transform 0.1s, color 0.3s;
+        }
+
+        button.pin-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .feed-column-class {
+            max-height: 800px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-right: 5px;
+        }
+
+        .empty-notice {
+            text-align: center;
+            color: #6B6B6B;
+            font-size: 14px;
+            font-style: italic;
+            padding: 20px 0;
+        }
+        
+        .note-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .sticky-note {
+            padding: 15px;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            color: #2F3E32;
+            box-sizing: border-box;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        
+        .note-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .note-actions-wrapper {
+            position: relative;
+        }
+
+        .dots-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .dots-btn:hover {
+            opacity: 1;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background-color: #FAF9F6;
+            border: 2px solid rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            min-width: 50px;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 2px 4px;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            color: #333;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #E7E2D9;
+        }
+
+        .dropdown-item.delete-item {
+            color: #A36A6A;
+        }
+
+        .dropdown-item.delete-item:hover {
+            background-color: #FADBD8;
+            color: #883333;
+        }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            border-top: 1px dashed rgba(0,0,0,0.06);
+            padding-top: 8px;
+        }
+        
+        .note-time {
+            font-size: 11px;
+            color: #667A6B;
+        }
+        
+        .toggle-replies-btn {
+            background: none;
+            border: none;
+            color: #556658;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            margin: 0;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        
+        .reply-section {
+            display: none;
+            flex-direction: column;
+            background: rgba(245, 242, 235, 0.95);
+            margin-left: 10px;
+            margin-right: 5px;
+            margin-top: -2px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            gap: 10px;
+            padding: 10px;
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.08);
+        }
+        
+        .reply-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .reply-card {
+            background: #FFFFFF;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-left: 4px solid #C8D6AF;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            color: #333;
+        }
+        
+        .reply-input-box {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .reply-textarea {
+            height: 45px;
+            font-size: 14px;
+            border: 1px solid #D1CFC7;
+        }
+        
+        .reply-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .reply-send-btn {
+            width: auto;
+            margin: 0;
+            padding: 6px 15px;
+            background: #7A8F80;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .word-counter-text {
+            font-size: 12px;
+            color: gray;
+            text-align: right;
+            margin-top: 4px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #563232;
+        }
+
+        .color-picker-input {
+            width: 30px;
+            height: 25px;
+            border: 1px solid #342525;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        .fixed-panel-label {
+            background-color: #FAF9F6;
+            color: #563232;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            display: inline-block;
+            border: 1px solid #342525;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="top-navbar">
+        <button class="hamburger-btn" onclick="toggleSettingsMenu()">☰</button>
+    </div>
+
+    <div class="control-deck" id="settingsMenuDeck">
+        <div class="color-picker-wrapper">
+            <label for="themeColor">Custom Theme:</label>
+            <input type="color" id="themeColor" class="color-picker-input" value="#C8D6AF" onchange="updateAppTheme(this.value)">
+        </div>
+
+        <div style="width: 2px; height: 20px; background-color: #342525; opacity: 0.4;"></div>
+
+        <div>
+            <label for="bgUpload" class="fixed-panel-label">Upload Background
+            </label>
+            <input type="file" id="bgUpload" accept="image/*" style="display: none;" onchange="changeBackground(this)">
+            
+            <button onclick="resetBackground()" style="background-color: #FAF9F6; color: #BA6B6B; border: 1px solid #342525; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-left: 5px; cursor: pointer;">
+                Default
+            </button>
+        </div>
+
+        <div style="width: 100%; text-align: center; font-size: 11px; color: #563232; font-weight: bold; margin-top: 5px;">
+            ⚠️ Keep custom backgrounds under 2.5 MB for storage stability.
+        </div>
+    </div>
+
+    <div class="board-selector-menu" id="switchBoardMenu">
+        <button class="menu-btn active" onclick="switchView('notes', this)">Notes</button>
+        <button class="menu-btn" onclick="switchView('favorites', this)">Favorites</button>
+    </div>
+    
+    <div class="board-container" id="mainBoardWrapper">
+        <div class="board-column active-view" id="notesColumn">
+            <div class="category-column">
+                <h3 class="column-header main-header-target" id="columnHeader">Write a note</h3>
+                <div class="input-box">
+                    <textarea id="noteInput" placeholder="Say something..." oninput="checkWordLimit(this, 'noteCount')"></textarea>
+                    <div id="noteCount" class="word-counter-text">0 / 1000 words</div>
+                    <button id="noteBtn" class="pin-btn" onclick="addNote()">📌 Pin</button>
+                </div>
+                <div class="feed-column-class" id="noteFeed"></div>
+            </div>
+        </div>
+
+        <div class="board-column" id="favoritesColumn">
+            <div class="category-column">
+                <h3 class="column-header favorite-header-target" id="favHeader">Pinned favorites</h3>
+                <div class="feed-column-class" id="favoriteFeed"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let boardData = JSON.parse(localStorage.getItem('corkboard_data')) || {};
+        let activeThemeColor = localStorage.getItem('corkboard_theme_color') || '#C8D6AF';
+        let currentActiveView = localStorage.getItem('corkboard_active_view') || 'notes';
+
+        window.onload = function() {
+            if (!boardData.note) boardData.note = [];
+            
+            document.getElementById('themeColor').value = activeThemeColor;
+            applyThemeStyles(activeThemeColor);
+            renderFeeds();
+            initViewState();
+
+            const savedBg = localStorage.getItem('corkboard_custom_bg');
+            if (savedBg) {
+                document.body.style.backgroundImage = `url(${savedBg})`;
+            }
+        };
+
+        function saveData() {
+            localStorage.setItem('corkboard_data', JSON.stringify(boardData));
+        }
+
+        function toggleSettingsMenu() {
+            const menu = document.getElementById('settingsMenuDeck');
+            menu.classList.toggle('open');
+        }
+
+        function switchView(viewType, buttonElement) {
+            currentActiveView = viewType;
+            localStorage.setItem('corkboard_active_view', viewType);
+
+            const buttons = document.querySelectorAll('#switchBoardMenu .menu-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+
+            const notesCol = document.getElementById('notesColumn');
+            const favCol = document.getElementById('favoritesColumn');
+
+            if (viewType === 'notes') {
+                notesCol.classList.add('active-view');
+                favCol.classList.remove('active-view');
+            } else {
+                favCol.classList.add('active-view');
+                notesCol.classList.remove('active-view');
+            }
+        }
+
+        function initViewState() {
+            const buttons = document.querySelectorAll('#switchBoardMenu .menu-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            const notesCol = document.getElementById('notesColumn');
+            const favCol = document.getElementById('favoritesColumn');
+
+            if (currentActiveView === 'notes') {
+                buttons[0].classList.add('active');
+                notesCol.classList.add('active-view');
+                favCol.classList.remove('active-view');
+            } else {
+                buttons[1].classList.add('active');
+                favCol.classList.add('active-view');
+                notesCol.classList.remove('active-view');
+            }
+        }
+
+        function getPastelTint(hex, tintFactor = 0.75) {
+            hex = hex.replace(/^\s*#|\s*$/g, '');
+            if(hex.length === 3) hex = hex.replace(/(.)/g, '$1$1');
+
+            let r = parseInt(hex.substr(0, 2), 16),
+                g = parseInt(hex.substr(2, 2), 16),
+                b = parseInt(hex.substr(4, 2), 16);
+
+            r = Math.round(r + (255 - r) * tintFactor);
+            g = Math.round(g + (255 - g) * tintFactor);
+            b = Math.round(b + (255 - b) * tintFactor);
+
+            return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+        }
+
+        function getContrastColor(hex) {
+            hex = hex.replace(/^\s*#|\s*$/g, '');
+            if(hex.length === 3) hex = hex.replace(/(.)/g, '$1$1');
+            let r = parseInt(hex.substr(0, 2), 16),
+                g = parseInt(hex.substr(2, 2), 16),
+                b = parseInt(hex.substr(4, 2), 16);
+            
+            r = Math.max(0, Math.round(r * 0.45));
+            g = Math.max(0, Math.round(g * 0.45));
+            b = Math.max(0, Math.round(b * 0.45));
+            return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+        }
+
+        function updateAppTheme(hexColor) {
+            const softPastelTheme = getPastelTint(hexColor, 0.45);
+            activeThemeColor = softPastelTheme;
+            localStorage.setItem('corkboard_theme_color', softPastelTheme);
+            applyThemeStyles(softPastelTheme);
+            renderFeeds();
+        }
+
+        function applyThemeStyles(color) {
+            const darkText = getContrastColor(color);
+            document.getElementById('columnHeader').style.backgroundColor = color;
+            document.getElementById('columnHeader').style.color = darkText;
+            document.getElementById('favHeader').style.backgroundColor = color;
+            document.getElementById('favHeader').style.color = darkText;
+            document.getElementById('noteBtn').style.backgroundColor = color;
+            document.getElementById('noteBtn').style.color = darkText;
+        }
+
+        function changeBackground(inputElement) {
+            const file = inputElement.files[0];
+            if (file) {
+                if (file.size > 2.5 * 1024 * 1024) {
+                    alert("This image is too large. Please select one under 2.5 MB.");
+                    inputElement.value = ""; 
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                    localStorage.setItem('corkboard_custom_bg', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetBackground() {
+            localStorage.removeItem('corkboard_custom_bg');
+            document.body.style.backgroundImage = "url('bg.jpg')";
+            document.getElementById('bgUpload').value = "";
+        }
+
+        function checkWordLimit(textareaElement, displayId) {
+            const display = document.getElementById(displayId);
+            let words = textareaElement.value.trim().split(/\s+/);
+            if (words[0] === "") words = [];
+            if (words.length > 1000) {
+                textareaElement.value = words.slice(0, 1000).join(" ");
+                words = words.slice(0, 1000);
+            }
+            display.innerText = words.length + " / 1000 words";
+            display.style.color = words.length >= 1000 ? "#BA6B6B" : "gray";
+        }
+
+        function checkReplyWordLimit(textareaElement, displayElement) {
+            let words = textareaElement.value.trim().split(/\s+/);
+            if (words[0] === "") words = [];
+            if (words.length > 500) {
+                textareaElement.value = words.slice(0, 500).join(" ");
+                words = words.slice(0, 500);
+            }
+            if (displayElement) {
+                displayElement.innerText = words.length + " / 500 words";
+                displayElement.style.color = words.length >= 500 ? "#BA6B6B" : "gray";
+            }
+        }
+
+        function addNote() {
+            const inputElement = document.getElementById('noteInput');
+            let rawText = inputElement.value.trim();
+            if (rawText === "") return alert("Please write something first!");
+
+            const newNote = {
+                id: "note_" + Date.now() + "_" + Math.floor(Math.random()*1000),
+                text: rawText, 
+                color: "rgba(255, 255, 255, 0.7)", 
+                timestamp: Date.now(),
+                isFavorite: false,
+                replies: []
+            };
+
+            boardData['note'].push(newNote);
+            saveData();
+            renderFeeds();
+            
+            inputElement.value = "";
+            document.getElementById('noteCount').innerText = "0 / 1000 words";
+            document.getElementById('noteCount').style.color = "gray";
+        }
+
+        function toggleFavorite(noteId) {
+            const note = boardData['note'].find(n => n.id === noteId);
+            if (note) {
+                note.isFavorite = !note.isFavorite;
+                saveData();
+                renderFeeds();
+            }
+        }
+
+        function deleteNote(noteId) {
+            if (confirm("Permanently delete this note?")) {
+                boardData['note'] = boardData['note'].filter(note => note.id !== noteId);
+                saveData(); 
+                renderFeeds(); 
+            }
+        }
+
+        function toggleNoteDropdown(event, noteId) {
+            event.stopPropagation();
+
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== 'dropdown_' + noteId) {
+                    menu.classList.remove('show');
+                }
+            });
+            const targetMenu = document.getElementById('dropdown_' + noteId);
+            targetMenu.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        });
+
+        function renderFeeds() {
+            const noteFeed = document.getElementById('noteFeed');
+            const favoriteFeed = document.getElementById('favoriteFeed');
+            if (!noteFeed || !favoriteFeed) return;
+
+            noteFeed.innerHTML = "";
+            favoriteFeed.innerHTML = "";
+            
+            if (!boardData['note']) boardData['note'] = [];
+            
+            const sortedBase = [...boardData['note']].sort((a, b) => b.timestamp - a.timestamp);
+
+            const favoriteNotes = sortedBase.filter(n => n.isFavorite === true);
+            const regularNotes = sortedBase.filter(n => n.isFavorite !== true);
+
+            const darkText = getContrastColor(activeThemeColor);
+
+            if (favoriteNotes.length === 0) {
+                favoriteFeed.innerHTML = `<div class="empty-notice">No pinned favorites yet. Open the note menu options to save items here.</div>`;
+            } else {
+                favoriteNotes.forEach(note => createNoteDOMElement(note, favoriteFeed, darkText));
+            }
+
+            if (regularNotes.length === 0) {
+                noteFeed.innerHTML = `<div class="empty-notice">The board is clear. Add a brand new note above!</div>`;
+            } else {
+                regularNotes.forEach(note => createNoteDOMElement(note, noteFeed, darkText));
+            }
+
+            updateLiveTimestamps();
+        }
+
+        function createNoteDOMElement(note, targetFeed, darkText) {
+            const groupDiv = document.createElement("div");
+            groupDiv.className = "note-group";
+            
+            const displayBody = note.text.replace(/\n/g, '<br>');
+            const currentStickyColor = note.color || getPastelTint(activeThemeColor, 0.85);
+            
+            const favoriteActionText = note.isFavorite ? "Unfavorite" : "Favorite";
+            
+            groupDiv.innerHTML = `
+                <div class="sticky-note" style="background-color: ${currentStickyColor}; color: ${darkText};">
+                    <div class="note-header-row">
+                        <div>${displayBody}</div>
+                        <div class="note-actions-wrapper">
+                            <button class="dots-btn" onclick="toggleNoteDropdown(event, '${note.id}')">⋮</button>
+                            <div class="dropdown-menu" id="dropdown_${note.id}">
+                                <button class="dropdown-item" onclick="toggleFavorite('${note.id}')">${favoriteActionText}</button>
+                                <button class="dropdown-item delete-item" onclick="deleteNote('${note.id}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="note-footer">
+                        <span class="note-time live-timestamp" data-time="${note.timestamp}">Just now</span>
+                        <button class="toggle-replies-btn" style="color: ${darkText};" onclick="toggleReplies('${note.id}')" id="toggleBtn_${note.id}">View Replies (${note.replies.length})</button>
+                    </div>
+                </div>
+                <div class="reply-section" id="replies_${note.id}">
+                    <div class="reply-list" id="replyList_${note.id}"></div>
+                    <div class="reply-input-box">
+                        <textarea class="reply-textarea" id="replyInput_${note.id}" placeholder="Write a reply..." oninput="checkReplyWordLimit(this, this.nextElementSibling)"></textarea>
+                        <div id="replyCount_${note.id}" style="font-size: 11px; color: gray; text-align: right; margin-bottom: 5px;">0 / 500 words</div>
+                        <div class="reply-controls">
+                            <span style="font-size:11px; color:#556658;" id="limitNotice_${note.id}">${note.replies.length} replies</span>
+                            <button class="reply-send-btn" style="background-color: ${darkText};" onclick="submitReply('${note.id}', this)">Reply</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            targetFeed.appendChild(groupDiv);
+            
+            const replyListContainer = groupDiv.querySelector(`#replyList_${note.id}`);
+            note.replies.forEach(reply => {
+                const replyCard = document.createElement("div");
+                replyCard.className = "reply-card";
+                replyCard.style.borderLeftColor = activeThemeColor;
+                
+                const replyBody = reply.text.replace(/\n/g, '<br>');
+                replyCard.innerHTML = `
+                    <div>${replyBody}</div>
+                    <div class="note-time" style="text-align:right; margin-top:5px;">${getFormattedTime(reply.timestamp)}</div>
+                `;
+                replyListContainer.appendChild(replyCard);
+            });
+        }
+            
+        function submitReply(noteId, buttonElement) {
+            const replyInput = document.getElementById("replyInput_" + noteId);
+            let rawText = replyInput.value.trim();
+            if (rawText === "") return alert("Reply cannot be empty!");
+
+            const targetNote = boardData['note'].find(n => n.id === noteId);
+            targetNote.replies.push({ text: rawText, timestamp: Date.now() });
+
+            saveData();
+            renderFeeds();
+            document.getElementById("replies_" + noteId).style.display = "flex";
+        }
+
+        function toggleReplies(id) {
+            const replySection = document.getElementById("replies_" + id);
+            const toggleBtn = document.getElementById("toggleBtn_" + id);
+            if (replySection.style.display === "flex") {
+                replySection.style.display = "none";
+                toggleBtn.innerText = "View Replies";
+            } else {
+                replySection.style.display = "flex";
+                toggleBtn.innerText = "Close Replies";
+            }
+        }
+
+        function getFormattedTime(timestamp) {
+            const secondsPassed = Math.floor((Date.now() - timestamp) / 1000);
+            if (secondsPassed < 60) return "Just now";
+            const minutes = Math.floor(secondsPassed / 60);
+            if (minutes < 60) return minutes + "m ago";
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + "h ago";
+            return Math.floor(hours / 24) + "d ago";
+        }
+
+        function updateLiveTimestamps() {
+            document.querySelectorAll('.live-timestamp').forEach(el => {
+                const timeCreated = parseInt(el.getAttribute('data-time'));
+                el.innerText = getFormattedTime(timeCreated);
+            });
+        }
+
+        setInterval(updateLiveTimestamps, 30000);
+
+
+        // PWA SERVICE WORKER REGISTRATION SCRIPT
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker connected safely!', reg.scope))
+                .catch(err => console.log('Service worker tracking failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>

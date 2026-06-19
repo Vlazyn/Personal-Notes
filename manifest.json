@@ -1,0 +1,17 @@
+{
+  "short_name": "Notes",
+  "name": "Personal Notes",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#E7E2D9",
+  "theme_color": "#6E5B4A",
+  "display": "standalone",
+  "orientation": "portrait"
+}
