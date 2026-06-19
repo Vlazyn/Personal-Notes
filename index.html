@@ -237,13 +237,8 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 12px;
-            width:100%;
-        }
-        
-        .note-text-content {
-            flex: 1;
-            min-width: 0;
+            gap: 5px;
+            margin-bottom: 5px;
         }
         
         .note-actions-wrapper {
@@ -269,14 +264,14 @@
         .dropdown-menu {
             display: none;
             position: absolute;
-            top: 25px;
+            top: 20px;
             right: 0;
             background-color: #FAF9F6;
             border: 2px solid rgba(0, 0, 0, 0.15);
             border-radius: 6px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             z-index: 10;
-            min-width: 110px;
+            min-width: 50px;
             overflow: hidden;
         }
 
@@ -294,7 +289,6 @@
             cursor: pointer;
             font-family: inherit;
             color: #333;
-            white-space: nowrap;
             transition: background 0.2s;
         }
 
@@ -765,7 +759,7 @@
             groupDiv.innerHTML = `
                 <div class="sticky-note" style="color: ${darkText};">
                     <div class="note-header-row">
-                        <div class="note-text-content">${displayBody}</div>
+                        <div>${displayBody}</div>
                         <div class="note-actions-wrapper">
                             <button class="dots-btn" onclick="toggleNoteDropdown(event, '${note.id}')">⋮</button>
                             <div class="dropdown-menu" id="dropdown_${note.id}">
