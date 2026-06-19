@@ -224,7 +224,7 @@
             white-space: pre-wrap;
             border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.65) !important; 
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
@@ -757,7 +757,7 @@
             const favoriteActionText = note.isFavorite ? "Unfavorite" : "Favorite";
             
             groupDiv.innerHTML = `
-                <div class="sticky-note" style="background-color: ${currentStickyColor}; color: ${darkText};">
+                <div class="sticky-note" style="color: ${darkText};">
                     <div class="note-header-row">
                         <div>${displayBody}</div>
                         <div class="note-actions-wrapper">
